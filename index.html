@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Floyd-Warshall Visualizer</title>
+
+<style>
+body {
+  margin:0;
+  font-family: Arial;
+  background:#0b1220;
+  color:#e5e7eb;
+}
+
+.container {
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+}
+
+section {
+  background:#111827;
+  padding:25px;
+  margin-bottom:20px;
+  border-radius:10px;
+}
+
+h1,h2 {
+  margin-bottom:10px;
+}
+
+.controls {
+  margin-top:15px;
+}
+
+button {
+  padding:10px 15px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover {
+  background:#1d4ed8;
+}
+
+.matrix {
+  display:grid;
+  gap:5px;
+  margin-top:20px;
+}
+
+.cell {
+  width:55px;
+  height:55px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#1f2937;
+  border-radius:6px;
+  font-weight:bold;
+}
+
+.compare { background:#dc2626; }
+.update { background:#16a34a; }
+
+.info {
+  margin-top:10px;
+  font-size:14px;
+  color:#9ca3af;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- INTRO -->
+<section>
+<h1>Floyd-Warshall Algorithm</h1>
+<p>
+Finds the shortest paths between all pairs of vertices using Dynamic Programming.
+Works with weighted graphs (no negative cycles).
+</p>
+</section>
+
+<!-- VISUALIZER -->
+<section>
+<h2>Visualization</h2>
+
+<div class="controls">
+<button onclick="build()">Build</button>
+<button onclick="step()">Step</button>
+<button onclick="play()">Play</button>
+<button onclick="reset()">Reset</button>
+</div>
+
+<p id="status">Status: Idle</p>
+<p id="stepCount">Step: 0 / 0</p>
+<p>Relaxations: <span id="ops">0</span></p>
+
+<div id="matrix" class="matrix"></div>
+
+<p id="explain" class="info">---</p>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+<h2>How It Works</h2>
+<p>
+We check if going through an intermediate node <b>k</b> improves the shortest path between nodes <b>i</b> and <b>j</b>.
+</p>
+
+<pre>
+d[i][j] = min(d[i][j], d[i][k] + d[k][j])
+</pre>
+</section>
+
+<!-- COMPLEXITY -->
+<section>
+<h2>Complexity (CLO-1)</h2>
+<p>Time: O(V³)</p>
+<p>Space: O(V²)</p>
+<p>
+Three nested loops (k, i, j) → cubic complexity.
+</p>
+</section>
+
+<!-- DP -->
+<section>
+<h2>Dynamic Programming (CLO-3)</h2>
+<p>
+The algorithm reuses previously computed shortest paths, making it a Dynamic Programming approach.
+</p>
+</section>
+
+</div>
+
+<script>
+
+let graph = [
+[0,3,Infinity,7],
+[8,0,2,Infinity],
+[5,Infinity,0,1],
+[2,Infinity,Infinity,0]
+];
+
+let steps = [];
+let index = 0;
+let ops = 0;
+let playing = false;
+
+function draw(matrix){
+let container = document.getElementById("matrix");
+container.innerHTML="";
+container.style.gridTemplateColumns = `repeat(${matrix.length},55px)`;
+
+matrix.forEach(row=>{
+row.forEach(val=>{
+let div = document.createElement("div");
+div.className="cell";
+div.innerText = val===Infinity ? "∞" : val;
+container.appendChild(div);
+});
+});
+}
+
+function build(){
+steps=[];
+index=0;
+ops=0;
+
+let dist = JSON.parse(JSON.stringify(graph));
+let n = dist.length;
+
+for(let k=0;k<n;k++){
+for(let i=0;i<n;i++){
+for(let j=0;j<n;j++){
+
+steps.push({type:"compare",i,j,k,dist:JSON.parse(JSON.stringify(dist))});
+
+if(dist[i][j] > dist[i][k] + dist[k][j]){
+dist[i][j] = dist[i][k] + dist[k][j];
+ops++;
+
+steps.push({type:"update",i,j,k,dist:JSON.parse(JSON.stringify(dist))});
+}
+}}}
+
+document.getElementById("stepCount").innerText=`Step: 0 / ${steps.length}`;
+document.getElementById("status").innerText="Ready";
+document.getElementById("ops").innerText=0;
+draw(graph);
+}
+
+function step(){
+if(index>=steps.length) return;
+
+let s = steps[index];
+draw(s.dist);
+
+let cells = document.querySelectorAll(".cell");
+let n = graph.length;
+cells[s.i*n + s.j].classList.add(s.type==="compare"?"compare":"update");
+
+document.getElementById("stepCount").innerText=
+`Step: ${index+1} / ${steps.length}`;
+
+document.getElementById("ops").innerText=ops;
+
+document.getElementById("explain").innerText=
+`Checking if path ${s.i} → ${s.j} improves using node ${s.k}`;
+
+index++;
+}
+
+function play(){
+playing = true;
+document.getElementById("status").innerText="Playing";
+
+function loop(){
+if(!playing) return;
+step();
+if(index < steps.length){
+setTimeout(loop,500);
+}else{
+document.getElementById("status").innerText="Done";
+}
+}
+loop();
+}
+
+function reset(){
+index=0;
+ops=0;
+playing=false;
+
+draw(graph);
+
+document.getElementById("status").innerText="Idle";
+document.getElementById("stepCount").innerText="Step: 0 / 0";
+document.getElementById("ops").innerText=0;
+document.getElementById("explain").innerText="---";
+}
+
+draw(graph);
+
+</script>
+
+</body>
+</html>
