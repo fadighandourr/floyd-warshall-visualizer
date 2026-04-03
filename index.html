@@ -25,7 +25,7 @@ section {
   border-radius:10px;
 }
 
-h1,h2 {
+h1,h2,h3 {
   margin-bottom:10px;
 }
 
@@ -73,6 +73,82 @@ button:hover {
   color:#9ca3af;
 }
 
+/* ── NEW: Intro section enhancements ── */
+.intro-body {
+  line-height: 1.75;
+  color: #d1d5db;
+}
+
+.intro-body p {
+  margin-bottom: 12px;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.tag {
+  background: #1e3a5f;
+  border: 1px solid #2563eb;
+  color: #93c5fd;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.use-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.use-card {
+  background: #1f2937;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.use-card h3 {
+  font-size: 15px;
+  color: #60a5fa;
+  margin-bottom: 6px;
+}
+
+.use-card p {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.highlight-box {
+  background: #1e3a5f;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #bfdbfe;
+  line-height: 1.7;
+}
+
+.highlight-box strong {
+  color: #93c5fd;
+}
+
+.limit-list {
+  margin: 12px 0 0 18px;
+  padding: 0;
+  font-size: 14px;
+  color: #9ca3af;
+  line-height: 1.8;
+}
 </style>
 </head>
 
@@ -80,16 +156,126 @@ button:hover {
 
 <div class="container">
 
-<!-- INTRO -->
+<!-- ── INTRO ── -->
 <section>
-<h1>Floyd-Warshall Algorithm</h1>
-<p>
-Finds the shortest paths between all pairs of vertices using Dynamic Programming.
-Works with weighted graphs (no negative cycles).
-</p>
+  <h1>Floyd-Warshall Algorithm</h1>
+
+  <div class="intro-body">
+
+    <p>
+      The <strong>Floyd-Warshall algorithm</strong> is a classic <em>all-pairs shortest path</em> algorithm.
+      Unlike Dijkstra's algorithm — which finds the shortest path from a <em>single source</em> to all other nodes —
+      Floyd-Warshall computes the shortest distances between <strong>every pair of vertices</strong> in a weighted graph, all at once.
+    </p>
+
+    <p>
+      It was published by <strong>Robert Floyd</strong> in 1962 and is closely related to
+      work by <strong>Stephen Warshall</strong> on transitive closure of graphs. The algorithm
+      works on both <em>directed</em> and <em>undirected</em> weighted graphs, and it handles
+      <strong>negative edge weights</strong> — as long as there are no negative-weight cycles.
+    </p>
+
+    <div class="tag-row">
+      <span class="tag">Dynamic Programming</span>
+      <span class="tag">All-Pairs Shortest Path</span>
+      <span class="tag">Weighted Graphs</span>
+      <span class="tag">Supports Negative Edges</span>
+      <span class="tag">O(V³) Time</span>
+    </div>
+
+    <p>
+      The core idea is beautifully simple: for every pair of nodes <strong>(i, j)</strong>,
+      check whether routing through an intermediate node <strong>k</strong> gives a shorter path than the current known one.
+      This check is repeated for every possible intermediate node, and after all iterations the matrix
+      holds the globally optimal shortest distances.
+    </p>
+
+    <div class="highlight-box">
+      <strong>Key recurrence:</strong><br>
+      <code>dist[i][j] = min( dist[i][j], dist[i][k] + dist[k][j] )</code><br><br>
+      The matrix is initialized with direct edge weights (or ∞ if no edge exists, and 0 on the diagonal).
+      After running all three loops, <code>dist[i][j]</code> holds the length of the
+      shortest path between every pair of vertices i and j.
+    </div>
+
+    <p style="margin-top:16px;">
+      To detect <strong>negative cycles</strong>, check the diagonal after the algorithm finishes —
+      if any <code>dist[i][i] &lt; 0</code>, a negative cycle exists in the graph.
+    </p>
+
+  </div>
 </section>
 
-<!-- VISUALIZER -->
+<!-- ── USE CASES ── -->
+<section>
+  <h2>Real-World Uses of Floyd-Warshall</h2>
+  <p style="color:#9ca3af; font-size:14px; margin-bottom:4px;">
+    Any problem that needs shortest distances between <em>all</em> pairs of nodes is a natural fit.
+  </p>
+
+  <div class="use-grid">
+
+    <div class="use-card">
+      <h3>🗺️ GPS &amp; Routing Systems</h3>
+      <p>Road networks use all-pairs shortest paths to pre-compute travel times between major hubs,
+         enabling instant route suggestions for any origin–destination pair.</p>
+    </div>
+
+    <div class="use-card">
+      <h3>🌐 Network Routing Protocols</h3>
+      <p>In computer networks, Floyd-Warshall (or its variants) helps routers build routing tables
+         that know the optimal path between any two nodes in the network topology.</p>
+    </div>
+
+    <div class="use-card">
+      <h3>✈️ Airline &amp; Transit Planning</h3>
+      <p>Airlines and transit systems use all-pairs shortest paths to find the cheapest or fastest
+         connections between any two cities, including multi-stop itineraries.</p>
+    </div>
+
+    <div class="use-card">
+      <h3>🤝 Social Network Analysis</h3>
+      <p>Measures like <em>betweenness centrality</em> and graph diameter require shortest paths
+         between all node pairs — Floyd-Warshall makes this computation straightforward.</p>
+    </div>
+
+    <div class="use-card">
+      <h3>🎮 Game &amp; AI Pathfinding</h3>
+      <p>In game maps or robot navigation grids, pre-computing all-pairs distances allows
+         instant lookup for any agent movement decision without re-running search each time.</p>
+    </div>
+
+    <div class="use-card">
+      <h3>📦 Supply Chain &amp; Logistics</h3>
+      <p>Optimizing warehouse-to-warehouse or supplier-to-factory routes benefits from knowing
+         the minimum cost path between every pair of locations in the distribution network.</p>
+    </div>
+
+    <div class="use-card">
+      <h3>🔗 Transitive Closure</h3>
+      <p>A Boolean variant of Floyd-Warshall determines reachability: can node i reach node j?
+         This is used in compilers, database query optimization, and dependency analysis.</p>
+    </div>
+
+    <div class="use-card">
+      <h3>💹 Arbitrage Detection (Finance)</h3>
+      <p>By applying Floyd-Warshall to currency exchange rate graphs (using log weights),
+         traders can detect arbitrage opportunities — cycles where exchanging currencies yields profit.</p>
+    </div>
+
+  </div>
+
+  <div class="highlight-box" style="margin-top:20px;">
+    <strong>When NOT to use Floyd-Warshall:</strong>
+    <ul class="limit-list">
+      <li>When you only need a <strong>single-source</strong> shortest path → use <em>Dijkstra</em> (faster for sparse graphs).</li>
+      <li>When the graph is very <strong>large and sparse</strong> → O(V³) becomes too slow; prefer repeated Dijkstra or Johnson's algorithm.</li>
+      <li>When the graph contains a <strong>negative-weight cycle</strong> → the algorithm cannot produce correct results.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── VISUALIZER ── -->
 <section>
 <h2>Visualization</h2>
 
